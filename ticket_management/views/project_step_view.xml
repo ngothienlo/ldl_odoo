@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data noupdate="0">
+		<record id="view_project_step_tree" model="ir.ui.view">
+			<field name="name">project.step.tree</field>
+			<field name="model">project.step</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="Step" fonts="bold:is_main_step==True">
+                    <field name="project_id" invisible="1"/>
+					<field name="name" />
+					<field name="description"/>
+					<field name="state" groups="base.group_user" />
+					<field name="date" />
+				</tree>
+			</field>
+		</record>
+
+        <record id="view_project_step_filter" model="ir.ui.view">
+            <field name="name">project.step.filter</field>
+            <field name="model">project.step</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search Step">
+                    <filter name="date" icon="project_date" string="With Date" domain="[('date','!=',False)]" />
+                    <separator orientation="vertical" />
+                    <field name="project_id" widget="selection"/>
+                    <field name="name" />
+                    <field name="state" />
+                    <newline />
+                    <group expand="1" string="Group By">
+                        <filter string="Project" icon="project_project" domain="[]"
+                            context="{'group_by':'project_id'}" />
+                        <separator orientation="vertical" />
+                        <filter string="State" icon="project_state"
+                            domain="[]" context="{'group_by':'state'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+		<record id="view_project_step_form" model="ir.ui.view">
+			<field name="name">project.step.form</field>
+			<field name="model">project.step</field>
+			<field name="type">form</field>
+			<field name="priority" eval="15"/>
+			<field name="arch" type="xml">
+				<form string="Step">
+						<group>
+							<div class="oe_title">
+								<label for="name" class="oe_edit_only" string="Step"/>
+								<h1><field name="name" /></h1>
+							</div>
+						</group>
+						<group>
+							<group>
+								<field name="number" />
+								<field name="project_id" />
+								<field name="date" />
+							</group>
+							<group>
+								<field name="description" />
+								<field name="state" groups="base.group_user" />
+							</group>
+						</group>
+						<notebook colspan="4" >
+							<page string="Internal Tickets">
+								<field name="internal_ticket_ids" widget="one2many_list" colspan="4" nolabel="1"/>
+							</page>
+							<page string="Tickets">
+								<field name="ticket_ids"  widget="one2many_list" colspan="4" nolabel="1"/>
+							</page>
+							<page string="Configuration">
+								<group>
+									<field name="active" readonly="True" />
+								</group>
+							</page>
+						</notebook>
+					<div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+				</form>
+			</field>
+		</record>
+
+        <!-- action used on menu -->
+        <record id="action_view_project_step" model="ir.actions.act_window">
+            <field name="name">Steps</field>
+            <field name="res_model">project.step</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_project_step_tree"/>
+        </record>
+    </data>
+</odoo>

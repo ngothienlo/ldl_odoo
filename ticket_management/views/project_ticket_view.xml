@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_ticket_tree" model="ir.ui.view">
+			<field name="name">project.ticket.tree</field>
+			<field name="model">project.ticket</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="Tickets"
+					colors="grey:state=='closed';red:priority=='4';rgb(233, 87, 4):priority=='3';SteelBlue:priority=='1'">
+					<field name="id" string="ID" />
+					<field name="name" />
+					<field name="project_id" />
+					<field name="user_id" />
+					<field name="step_number" />
+					<field name="commitment_id" />
+					<field name="priority" />
+					<field name="workload" />
+					<field name="state" />
+					<field name="ticket_type" />
+				</tree>
+			</field>
+		</record>
+
+		<record id="view_ticket_filter" model="ir.ui.view">
+			<field name="name">project.ticket.filter</field>
+			<field name="model">project.ticket</field>
+			<field name="type">search</field>
+			<field name="arch" type="xml">
+				<search string="Search Ticket">
+					<group string="Field">
+						<field name="name" />
+						<field name="project_id" />
+						<field name="priority" />
+						<field name="delivery_status" />
+						<field name="step_id" />
+						<field name="commitment_id" />
+						<field name="user_id" />
+						<field name="create_uid" />
+					</group>
+					<group string="Filter">
+						<filter string="Very High" name="urgent"
+							domain="[('priority','=','very_high')]" help='Very High Priority' />
+						<separator />
+						<filter string="My tickets" name="my_ticket" domain="[('user_id','=',uid)]" />
+						<separator />
+						<filter string="Current Commitment" name="current_commitment"
+							domain="[('commitment_id.date_start','&lt;=',context_today().strftime('%%Y-%%m-%%d')),('commitment_id.date_end','&gt;=',context_today().strftime('%%Y-%%m-%%d'))]" />
+						<separator />
+						<filter string="Open" name="open" domain="[('state','!=','closed')]" />
+						<separator />
+						<filter string="New" name="new" domain="[('state','=','new')]" />
+						<filter string="Assigned" name="assigned" domain="[('state','=','assigned')]" />
+						<filter string="Planned for delivery" name="planned_for_delivery"
+							domain="[('state','=','planned_for_delivery')]" />
+						<filter string="Delivered in Sandbox" name="delivered"
+							domain="[('state','=','delivered')]" />
+						<filter string="OK for Live" name="ok_for_live"
+							domain="[('state','=','ok_for_live')]" />
+						<filter string="OK to close" name="ok_to_close"
+							domain="[('state','=','ok_to_close')]" />
+						<filter string="Closed" name="filter_closed" domain="[('state','=','closed')]" />
+						<separator />
+						<filter string="No estimate" name="filter_no_estimate"
+							domain="[('workload','in',(None,'0','0.00','0.01'))]" help="No estimate" />
+						<separator />
+						<filter string="No commitment" name="filter_no_commitment"
+							domain="[('commitment_id','=',None)]" help="Not planned in any commitment" />
+						<separator />
+						<filter string="No Step" name="filter_no_step" domain="[('step_id','=',None)]" />
+						<separator />
+					</group>
+					<group string="Group By">
+						<filter string="Project" name="group_project" domain="[]"
+							context="{'group_by':'project_id'}" />
+						<separator />
+						<filter string="Parent" domain="[]"
+							context="{'group_by':'parent_ticket_id'}" />
+						<separator />
+						<filter string="Commitment" name="group_commitment" domain="[]"
+							context="{'group_by':'commitment_id'}" />
+						<separator />
+						<filter name="group_by_developer" string="Developer"
+							domain="[]" context="{'group_by':'developer_id'}" />
+						<separator />
+						<filter string="Step" name="group_step" domain="[]"
+							context="{'group_by':'step_id'}" />
+						<separator />
+						<filter string="Priority" name="group_priority" domain="[]"
+							context="{'group_by':'priority'}" />
+						<separator />
+						<filter string="Assignee" name="group_owner" domain="[]"
+							context="{'group_by':'user_id'}" />
+						<separator />
+						<filter string="Status" name="group_status" domain="[]"
+							context="{'group_by':'state'}" />
+						<separator />
+						<filter string="Creator" name="group_creater" domain="[]"
+							context="{'group_by':'create_uid'}" />
+						<separator />
+					</group>
+				</search>
+			</field>
+		</record>
+
+		<record id="view_ticket_form" model="ir.ui.view">
+			<field name="name">view.project.ticket.form</field>
+			<field name="model">project.ticket</field>
+			<field name="inherit_id" ref="project.view_task_form2" />
+			<field name="type">form</field>
+			<field name="mode">primary</field>
+			<field name="arch" type="xml">
+				<field name="stage_id" position="attributes">
+					<attribute name="invisible">1</attribute>
+				</field>
+				<field name="stage_id" position="after">
+					<field name="state" widget="statusbar" clickable="True" />
+				</field>
+				<button name="action_assign_to_me" position="after">
+					<button name="button_create_internal_ticket" type="object" string="Create Internal Ticket"/>
+				</button>
+				<field name="partner_id" position="before">
+					<field name="developer_id" readonly="1" />
+					<field name="closed_by" readonly="1" />
+				</field>
+				<field name="date_assign" position="before">
+					<field name="delivery_status" />
+				</field>
+				<field name="user_id" position="after">
+					<field name="step_id" />
+					<field name="commitment_id" />
+				</field>
+				<field name="tag_ids" position="after">
+					<field name="workload" />
+				</field>
+				<field name="date_deadline" position="before">
+					<field name="ticket_type" />
+				</field>
+				<xpath expr="//notebook/page[@name='description_page']"
+					position="after">
+					<page name="working_hour" string="Working hours">
+						<field name="working_hour_ids"
+							context="{'default_name': name, 'default_ticket_id': id}">
+							<tree editable="top">
+								<field name="duration_hour" sum="Total Timespent"/>
+								<field name="name" invisible="1"/>
+							</tree>
+						</field>
+						<div class="oe_clear" />
+					</page>
+				</xpath>
+
+			</field>
+		</record>
+
+		<record id="action_ticket_action" model="ir.actions.act_window">
+			<field name="name">Tickets</field>
+			<field name="res_model">project.ticket</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+			<field name="search_view_id" ref="view_ticket_filter" />
+			<field name="context">{'search_default_my_ticket': 1, 'search_default_open': 1}</field>
+		</record>
+
+	</data>
+</odoo>

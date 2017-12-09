@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_project_working_hour_tree" model="ir.ui.view">
+			<field name="name">project.working.hour.tree</field>
+			<field name="model">project.working.hour</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="Working Hours" editable="top">
+					<field name="date" />
+					<field name="name" />
+					<field name="duration_hour" />
+					<field name="user_id" />
+					<field name="internal_ticket_id" />
+				</tree>
+			</field>
+		</record>
+
+		<record id="view_project_working_hour_filter" model="ir.ui.view">
+			<field name="name">project.working.hour.filter</field>
+			<field name="model">project.working.hour</field>
+			<field name="type">search</field>
+			<field name="arch" type="xml">
+				<search string="Search">
+					<group string="Field">
+						<field name="date" />
+						<field name="internal_ticket_id" />
+						<field name="name" />
+						<field name="user_id" />
+					</group>
+					<group string="Filter">
+						<filter string="My WH" name="my_wh" domain="[('user_id','=', uid)]" />
+						<separator />
+						<filter string="Today" name="today_wh"
+							domain="[('date','&lt;=',context_today().strftime('%%Y-%%m-%%d')),('date','&gt;=',context_today().strftime('%%Y-%%m-%%d'))]" />
+						<separator />
+					</group>
+					<group string="Group By">
+						<filter string="User" name="group_user_id" domain="[]"
+							context="{'group_by':'user_id'}" />
+						<separator />
+						<filter string="Date" domain="[]" context="{'group_by':'date'}" />
+					</group>
+				</search>
+			</field>
+		</record>
+
+		<record id="action_project_working_hour_action" model="ir.actions.act_window">
+			<field name="name">Working Hours</field>
+			<field name="res_model">project.working.hour</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+			<field name="context">{'search_default_my_wh': 1, 'search_default_today_wh': 1}</field>
+		</record>
+
+	</data>
+</odoo>
